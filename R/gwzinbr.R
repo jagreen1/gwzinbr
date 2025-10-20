@@ -389,7 +389,8 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   else if(any(lambdag)== 0 & alphag==E^-6){
     II <- II[2:(ncol(x)+1), 2:(ncol(x)+1)]
   }
-  varabetalambdag <- diag(solve(II))
+  #solve changed to ginv, testing solutions to local singularity
+  varabetalambdag <- diag(ginv(II))
   stdabetalambdag <- sqrt(abs(varabetalambdag))
   varcovg <- solve(II)
   ##################
@@ -1526,3 +1527,4 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   }
   invisible(output)
 }
+
