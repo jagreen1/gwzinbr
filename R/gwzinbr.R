@@ -390,7 +390,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
     II <- II[2:(ncol(x)+1), 2:(ncol(x)+1)]
   }
   #solve changed to ginv, testing solutions to local singularity
-  varabetalambdag <- diag(ginv(II))
+  varabetalambdag <- diag(ginv(II),tol = sqrt(.Machine$double.eps))
   stdabetalambdag <- sqrt(abs(varabetalambdag))
   varcovg <- solve(II)
   ##################
@@ -1527,4 +1527,5 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   }
   invisible(output)
 }
+
 
