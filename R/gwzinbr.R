@@ -885,8 +885,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       #View(W_f)
     }
   }
-  
-  print('distance calc complete')
+
   
   if (is.null(grid)){
     v1 <- sum(S)+sum(Si)
@@ -1550,6 +1549,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   }
   invisible(output)
 }
+
 
 
 
