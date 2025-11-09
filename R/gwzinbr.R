@@ -72,6 +72,7 @@
 #'
 #'
 #' @export
+library(progress)
 
 gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
                     lat, long, grid=NULL, method, model = "zinb",
@@ -119,6 +120,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   pos02 <- which(y==0)
   pos1 <- which(y>0)
 
+  print('Global Estimates')
   #### global estimates ####
   uj <- (y+mean(y))/2
   nj <- log(uj)
@@ -390,9 +392,11 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
     II <- II[2:(ncol(x)+1), 2:(ncol(x)+1)]
   }
   #solve changed to ginv, testing solutions to local singularity
-  varabetalambdag <- diag(ginv(II),tol = sqrt(.Machine$double.eps))
+  #varabetalambdag <- diag(ginv(II),tol = sqrt(.Machine$double.eps))
+  varabetalambdag <- diag(solve(II))
   stdabetalambdag <- sqrt(abs(varabetalambdag))
   varcovg <- solve(II)
+  
   ##################
   output <- append(output, list(h))
   names(output)[length(output)] <- "bandwidth"
@@ -422,9 +426,16 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   biT <- matrix(0, mm, ncol(x)+1)
   ym <- y-mean(y)
 
+  print('Calculating Distance')
   #### calculating distance ####
+  dist_pb <- progress_bar$new(
+    format = "  calculating distance [:bar] :percent eta: :eta elapsed: :elapsedfull",
+    total = mm, clear = FALSE, width= 60
+  )
   sequ <- 1:N
   for (i in 1:mm){
+    dist_pb$tick()
+    Sys.sleep(1 / mm)
     seqi <- rep(i, N)
     dx <- sp::spDistsN1(COORD, COORD[i,])
     distan <- cbind(seqi, sequ, dx)
@@ -457,6 +468,8 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       }
       w <- w[order(w[, 2]), 1]
     }
+    
+    print('Model Selection')
     #### model selection ####
     Iy <- Iy2
     b <- bg
@@ -660,6 +673,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       dllike <- llike-oldllike
       j <- j+1
     }
+    print('Computing Variance of Beta and Lambda')
     #### computing variance of beta and lambda ####
     if (det(t(x)%*%(w*Ai*x*wt))==0){
       C <- matrix(0, ncol(x),nrow(x))
@@ -833,6 +847,8 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       yhat2[i] <- uj[i]
       yhat[i] <- (uj*(1-exp(njl)/(1+exp(njl))))[i]
     }
+    
+    print('Creating Non-Stationarity Matrix')
     #### creating non-stationarity matrix ####
     if (method != "adaptive_bsq"){
       CCC <- cbind(x, w, wt)
@@ -869,6 +885,9 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       #View(W_f)
     }
   }
+  
+  print('distance calc complete')
+  
   if (is.null(grid)){
     v1 <- sum(S)+sum(Si)
     v11 <- sum(S)+sum(Si)
@@ -1086,6 +1105,8 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       names(output)[length(output)] <- "descript_stats_gwr_zero_infl_se"
     }
   }
+
+  print('Non-Stationarity Test')
   #### Non-Stationarity Test ####
   if (is.null(grid)){
     if(method!="adaptive_bsq"){
@@ -1152,6 +1173,8 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
       }
     }
   }
+  
+  print('Global Estimates')
   #### global estimates ####
   if (is.null(weight)){
     dfg <-N-nvar
@@ -1527,5 +1550,6 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   }
   invisible(output)
 }
+
 
 
