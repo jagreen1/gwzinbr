@@ -435,7 +435,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   sequ <- 1:N
   for (i in 1:mm){
     dist_pb$tick()
-    Sys.sleep(1 / mm)
+    Sys.sleep(0.01)
     seqi <- rep(i, N)
     dx <- sp::spDistsN1(COORD, COORD[i,])
     distan <- cbind(seqi, sequ, dx)
@@ -1549,6 +1549,7 @@ gwzinbr <- function(data, formula, xvarinf=NULL, weight=NULL,
   }
   invisible(output)
 }
+
 
 
 
